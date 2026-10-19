@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Clínica Brasil · Benefício Planning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  /* Paleta real Clínica Brasil */
+  --navy:#022F65; --navy2:#002B68; --navy3:#081E38;
+  --teal:#4F8C9A; --teal2:#2E8C7D; --teal-l:#D4EBE9; --teal-m:#A8D2D0;
+  --blue:#0068C2; --blue-l:#E3EDF9; --blue2:#1F6ED4;
+  --gray-50:#F7FAFC; --gray-100:#EDF2F7; --gray-200:#E2E8F0;
+  --gray-s:#D8DFE2; --gray-400:#94A3B8; --gray-600:#64748B; --gray-700:#475569;
+  --gray-900:#1E293B; --white:#FFFFFF;
+  --green:#16A34A; --green-l:#F0FDF4;
+  --amber:#D97706; --amber-l:#FFFBEB;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--gray-100);color:var(--gray-700);line-height:1.65;font-size:14px;}
+
+/* TOPBAR */
+.topbar{background:var(--navy3);color:rgba(255,255,255,.5);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:10px 40px;display:flex;justify-content:space-between;align-items:center;}
+.topbar strong{color:rgba(255,255,255,.9);}
+
+/* TOC */
+.toc{position:fixed;top:50%;right:16px;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:100;}
+.toc-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-200);cursor:pointer;transition:background .2s,transform .2s;position:relative;}
+.toc-dot:hover,.toc-dot.active{background:var(--teal);transform:scale(1.4);}
+.toc-dot::after{content:attr(data-label);position:absolute;right:16px;top:50%;transform:translateY(-50%);background:var(--navy);color:var(--white);font-size:11px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:4px;opacity:0;pointer-events:none;transition:opacity .15s;}
+.toc-dot:hover::after{opacity:1;}
+@media(max-width:900px){.toc{display:none;}}
+
+/* SCROLL TOP */
+#scroll-top{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--white);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s,background .2s;z-index:200;}
+#scroll-top.visible{opacity:1;pointer-events:auto;}
+#scroll-top:hover{background:var(--teal);transform:scale(1.1);}
+
+/* LAYOUT */
+.container{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+
+/* COVER */
+.cover-wrap{padding:0 0 0;max-width:900px;margin:0 auto 24px;}
+.cover{background:linear-gradient(135deg,var(--navy3) 0%,var(--navy) 60%,#0A3E6E 100%);border-radius:20px;padding:56px 48px;position:relative;overflow:hidden;}
+.cover::before{content:'';position:absolute;top:-80px;right:-60px;width:360px;height:360px;background:radial-gradient(circle,rgba(79,140,154,.3) 0%,transparent 70%);border-radius:50%;}
+.cover::after{content:'';position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(46,140,125,.2) 0%,transparent 70%);border-radius:50%;}
+.cover-kicker{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:14px;position:relative;z-index:1;}
+.cover-brand{font-size:13px;font-weight:800;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;position:relative;z-index:1;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cover-brand::before{content:'🏥';}
+.cover h1{font-size:clamp(28px,4vw,44px);font-weight:900;line-height:1.05;letter-spacing:-.03em;color:var(--white);margin-bottom:14px;position:relative;z-index:1;}
+.cover h1 em{font-style:normal;color:var(--teal);}
+.cover-sub{font-size:14px;color:rgba(255,255,255,.65);max-width:500px;line-height:1.65;margin-bottom:28px;position:relative;z-index:1;}
+.cover-tags{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
+.cover-tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:.04em;color:rgba(255,255,255,.85);}
+
+/* HIGHLIGHT CARDS */
+.highlights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.hl-card{background:var(--white);border-radius:12px;padding:20px;text-align:center;border-top:3px solid var(--teal);}
+.hl-icon{font-size:26px;margin-bottom:8px;}
+.hl-title{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin-bottom:4px;}
+.hl-value{font-size:13px;font-weight:600;color:var(--green);}
+@media(max-width:640px){.highlights{grid-template-columns:1fr;}}
+
+/* SECTIONS */
+.section{background:var(--white);border-radius:16px;margin-bottom:16px;overflow:hidden;transition:box-shadow .25s;}
+.section:hover{box-shadow:0 8px 32px rgba(2,47,101,.1);}
+.section-inner{padding:40px;}
+.sec-head{display:flex;align-items:flex-start;gap:18px;margin-bottom:28px;}
+.sec-num{font-size:44px;font-weight:900;line-height:1;color:var(--gray-200);letter-spacing:-.04em;flex-shrink:0;min-width:58px;}
+.sec-category{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal2);margin-bottom:3px;}
+.sec-title{font-size:21px;font-weight:800;color:var(--gray-900);line-height:1.2;letter-spacing:-.02em;}
+.sec-desc{margin-top:5px;font-size:13px;color:var(--gray-400);max-width:520px;}
+
+/* BENEFIT GRID */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.benefit-item{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:10px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;transition:all .2s;}
+.benefit-item:hover{background:var(--teal-l);border-color:var(--teal-m);}
+.benefit-item-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.benefit-item-text h4{font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:2px;}
+.benefit-item-text p{font-size:12px;color:var(--gray-600);line-height:1.4;}
+@media(max-width:600px){.benefit-grid{grid-template-columns:1fr;}}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--gray-100);align-items:flex-start;transition:all .15s;border-radius:6px;padding-left:4px;margin:0 -4px;}
+.step:last-child{border-bottom:none;}
+.step:hover{background:var(--gray-50);padding-left:12px;}
+.step-n{width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--white);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-content h4{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:3px;}
+.step-content p{font-size:13px;color:var(--gray-600);line-height:1.55;}
+.step-content strong{color:var(--gray-900);}
+.step-content a{color:var(--blue);font-weight:600;text-decoration:none;}
+.step-content a:hover{text-decoration:underline;}
+
+/* TEAL CALLOUT */
+.callout-teal{background:var(--teal-l);border-left:3px solid var(--teal);}
+.callout-teal .callout-label{color:var(--teal2);}
+.callout-teal .callout-text{color:#1D5E58;}
+
+/* CALLOUTS */
+.callout{border-radius:8px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;margin-top:16px;transition:transform .2s,box-shadow .2s;}
+.callout:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.callout-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+.callout-text{font-size:13px;line-height:1.5;}
+.callout-info{background:var(--teal-l);border-left:3px solid var(--teal);}
+.callout-info .callout-label{color:var(--teal2);}
+.callout-info .callout-text{color:#1D5E58;}
+.callout-red{background:var(--blue-l);border-left:3px solid var(--blue);}
+.callout-red .callout-label{color:var(--blue);}
+.callout-red .callout-text{color:#003F80;}
+.callout-green{background:var(--green-l);border-left:3px solid var(--green);}
+.callout-green .callout-label{color:#15803D;}
+.callout-green .callout-text{color:#15803D;}
+.callout-dark{background:var(--gray-100);border-left:3px solid var(--gray-400);}
+.callout-dark .callout-label{color:var(--gray-700);}
+.callout-dark .callout-text{color:var(--gray-600);}
+.callout-amber{background:var(--amber-l);border-left:3px solid var(--amber);}
+.callout-amber .callout-label{color:#92400E;}
+.callout-amber .callout-text{color:#92400E;}
+
+/* BADGE CARDS (sem taxa, sem carência, etc.) */
+.badge-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.badge-card{background:var(--navy);border-radius:10px;padding:18px 16px;text-align:center;color:var(--white);}
+.badge-card-icon{font-size:22px;margin-bottom:6px;}
+.badge-card-title{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.badge-card-value{font-size:14px;font-weight:700;color:var(--white);}
+.badge-card.accent{background:linear-gradient(135deg,var(--teal2) 0%,#1A6B60 100%);}
+@media(max-width:600px){.badge-row{grid-template-columns:1fr;}}
+
+/* CONTACT BOX */
+.contact-box{background:var(--navy);border-radius:12px;padding:24px 28px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.contact-item{display:flex;align-items:center;gap:12px;}
+.contact-icon{font-size:22px;flex-shrink:0;}
+.contact-info span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-bottom:2px;}
+.contact-info a,.contact-info strong{font-size:13px;font-weight:700;color:var(--white);text-decoration:none;}
+.contact-info a:hover{color:var(--red);}
+@media(max-width:600px){.contact-box{grid-template-columns:1fr;}}
+
+/* ADDRESS BOX */
+.address-box{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;}
+.address-icon{font-size:24px;flex-shrink:0;}
+.address-text h4{font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:3px;}
+.address-text p{font-size:13px;color:var(--gray-600);line-height:1.5;}
+.address-text a{color:var(--blue);font-weight:600;font-size:12px;text-decoration:none;}
+.address-text a:hover{text-decoration:underline;}
+
+/* CARTEIRINHA */
+.card-virtual{background:linear-gradient(135deg,var(--navy3) 0%,var(--navy) 100%);border-radius:14px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:16px;}
+.card-virtual::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(79,140,154,.4) 0%,transparent 70%);border-radius:50%;}
+.card-virtual-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px;position:relative;z-index:1;}
+.card-virtual-title{font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px;position:relative;z-index:1;}
+.card-virtual-sub{font-size:13px;color:rgba(255,255,255,.6);position:relative;z-index:1;}
+.card-chip{width:32px;height:24px;background:rgba(255,255,255,.2);border-radius:4px;margin-bottom:16px;position:relative;z-index:1;}
+
+/* PRICE TABLE */
+.price-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;}
+.price-table thead th{background:var(--navy);color:var(--white);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.price-table thead th:not(:first-child){text-align:center;}
+.price-table tbody tr{border-bottom:1px solid var(--gray-100);}
+.price-table tbody tr:last-child{border-bottom:none;}
+.price-table tbody tr:hover{background:var(--gray-50);}
+.price-table td{padding:10px 14px;color:var(--gray-700);}
+.price-table td:not(:first-child){text-align:center;font-weight:600;}
+.price-table td.part{color:var(--gray-400);text-decoration:line-through;font-weight:400;}
+.price-table td.emp{color:var(--teal2);font-weight:700;}
+.price-table td.saving{color:var(--green);font-size:11px;font-weight:800;}
+.price-table .cat-row td{background:var(--navy3);color:rgba(255,255,255,.7);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:7px 14px;}
+.price-note{font-size:11px;color:var(--gray-400);margin-top:8px;font-style:italic;}
+
+/* HOURS TABLE */
+.hours-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
+.hours-table tr{border-bottom:1px solid var(--gray-100);}
+.hours-table tr:last-child{border-bottom:none;}
+.hours-table td{padding:10px 16px;}
+.hours-table td:first-child{color:var(--gray-700);font-weight:500;}
+.hours-table td:not(:first-child){text-align:center;font-weight:700;color:var(--navy);}
+.hours-table thead th{background:var(--navy);color:var(--white);padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.hours-table thead th:not(:first-child){text-align:center;}
+.hours-table tr:hover{background:var(--gray-50);}
+
+/* FOOTER */
+.footer{background:var(--navy);border-radius:12px;padding:16px 28px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.footer span{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.footer strong{color:rgba(255,255,255,.8);}
+
+@media(max-width:680px){
+  .container{padding:20px 12px 60px;}
+  .section-inner{padding:28px 20px;}
+  .cover{padding:40px 24px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span>Benefícios Corporativos · <strong>Clínica Brasil</strong></span>
+  <span>Gente e Gestão · Planning</span>
+</div>
+
+<nav class="toc" aria-label="Índice">
+  <div class="toc-dot" data-target="s01" data-label="O Benefício"></div>
+  <div class="toc-dot" data-target="s02" data-label="Quem tem direito"></div>
+  <div class="toc-dot" data-target="s03" data-label="Como utilizar"></div>
+  <div class="toc-dot" data-target="s04" data-label="Especialidades e Exames"></div>
+  <div class="toc-dot" data-target="s05" data-label="Agendamento"></div>
+  <div class="toc-dot" data-target="s06" data-label="Carteirinha Virtual"></div>
+  <div class="toc-dot" data-target="s07" data-label="Localização"></div>
+</nav>
+
+<button id="scroll-top" aria-label="Voltar ao topo">↑</button>
+
+<div class="container">
+
+  <!-- COVER -->
+  <div class="cover-wrap">
+    <div class="cover">
+      <div class="cover-kicker">Benefícios Corporativos · Saúde</div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:6px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--white);position:relative;z-index:1;margin-bottom:14px;">⏳ Em Breve</div>
+      <div class="cover-brand">Clínica Brasil</div>
+      <h1>Saúde acessível<br>para <em>você e sua família</em></h1>
+      <p class="cover-sub">Consultas médicas e exames em diversas especialidades, sem mensalidade, sem taxa de adesão e sem carência. Pague apenas pelo que utilizar.</p>
+      <div class="cover-tags">
+        <span class="cover-tag">🩺 Consultas Médicas</span>
+        <span class="cover-tag">🔬 Exames</span>
+        <span class="cover-tag">💳 Sem Mensalidade</span>
+        <span class="cover-tag">⏱️ Sem Carência</span>
+        <span class="cover-tag">📍 Setor Bueno · Goiânia</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESTAQUES -->
+  <div class="highlights">
+    <div class="hl-card">
+      <div class="hl-icon">💰</div>
+      <div class="hl-title">Sem Mensalidade</div>
+      <div class="hl-value">R$ 0,00 / mês</div>
+    </div>
+    <div class="hl-card">
+      <div class="hl-icon">🔓</div>
+      <div class="hl-title">Sem Carência</div>
+      <div class="hl-value">Uso imediato</div>
+    </div>
+    <div class="hl-card">
+      <div class="hl-icon">👨‍⚕️</div>
+      <div class="hl-title">Especialistas</div>
+      <div class="hl-value">+170 profissionais</div>
+    </div>
+  </div>
+
+  <!-- 01 O BENEFÍCIO -->
+  <div class="section" id="s01">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <div class="sec-meta">
+          <div class="sec-category">Visão Geral</div>
+          <div class="sec-title">O que é a Clínica Brasil</div>
+          <div class="sec-desc">Uma clínica médica completa, há 30 anos cuidando da saúde com qualidade e preços acessíveis.</div>
+        </div>
+      </div>
+
+      <div class="badge-row">
+        <div class="badge-card">
+          <div class="badge-card-icon">🚫</div>
+          <div class="badge-card-title">Taxa de Adesão</div>
+          <div class="badge-card-value">Nenhuma</div>
+        </div>
+        <div class="badge-card">
+          <div class="badge-card-icon">📅</div>
+          <div class="badge-card-title">Mensalidade</div>
+          <div class="badge-card-value">Não há</div>
+        </div>
+        <div class="badge-card accent">
+          <div class="badge-card-icon">⚡</div>
+          <div class="badge-card-title">Carência</div>
+          <div class="badge-card-value">Zero</div>
+        </div>
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-icon">✅</div>
+        <div class="callout-body">
+          <div class="callout-label">Como funciona</div>
+          <div class="callout-text">A Clínica Brasil oferece uma <strong>tabela de preços acessíveis</strong> para consultas e exames. O colaborador paga apenas pelos serviços que utilizar, diretamente na unidade, no momento do atendimento. <strong>Sem cobranças recorrentes.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 QUEM TEM DIREITO -->
+  <div class="section" id="s02">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <div class="sec-meta">
+          <div class="sec-category">Elegibilidade</div>
+          <div class="sec-title">Quem tem direito ao benefício</div>
+          <div class="sec-desc">O benefício está disponível para colaboradores de Goiás e do Distrito Federal.</div>
+        </div>
+      </div>
+
+      <div class="benefit-grid">
+        <div class="benefit-item">
+          <div class="benefit-item-icon">💼</div>
+          <div class="benefit-item-text">
+            <h4>Colaboradores CLT</h4>
+            <p>Todos os colaboradores com vínculo CLT de Goiás e do Distrito Federal.</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">📋</div>
+          <div class="benefit-item-text">
+            <h4>Prestadores de Serviços PJ</h4>
+            <p>Prestadores de serviços PJ vinculados à Planning em Goiás e no Distrito Federal.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-amber">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-label">Abrangência</div>
+          <div class="callout-text">O benefício se aplica a colaboradores localizados em <strong>Goiás</strong> e no <strong>Distrito Federal</strong>. Em caso de dúvidas sobre elegibilidade, entre em contato com o DP.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:12px;">
+        <div class="callout-icon">👨‍👩‍👧‍👦</div>
+        <div class="callout-body">
+          <div class="callout-label">Cônjuge e filhos</div>
+          <div class="callout-text">Cônjuge e filhos também podem utilizar o benefício. Para isso, basta apresentar na clínica a <strong>carteirinha do titular</strong> e um <strong>documento que comprove o vínculo familiar</strong> (certidão de casamento, certidão de nascimento ou documento equivalente).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 COMO UTILIZAR -->
+  <div class="section" id="s03">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <div class="sec-meta">
+          <div class="sec-category">Utilização</div>
+          <div class="sec-title">Como utilizar o benefício</div>
+          <div class="sec-desc">Simples, direto e sem burocracia. Veja como funciona o passo a passo.</div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-content">
+            <h4>Acesse sua carteirinha virtual</h4>
+            <p>Você receberá em breve um link para resgatar sua carteirinha virtual. Ela também ficará disponível no <strong>SharePoint</strong> da Planning — divulgaremos o acesso assim que o link estiver disponível. Para acessá-la, basta informar seu <strong>nome</strong> e <strong>data de nascimento</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-content">
+            <h4>Agende sua consulta ou exame</h4>
+            <p>Entre em contato com a clínica pelo telefone, WhatsApp ou pelo site para verificar disponibilidade e realizar o agendamento.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-content">
+            <h4>Compareça à unidade</h4>
+            <p>Apresente sua carteirinha virtual na recepção da Clínica Brasil, localizada no <strong>Setor Bueno, Goiânia</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-content">
+            <h4>Pague somente pelo que utilizar</h4>
+            <p>O pagamento é feito <strong>diretamente na unidade</strong>, no momento do atendimento, conforme a tabela de preços da clínica. Não há cobranças mensais ou taxas adicionais.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 ESPECIALIDADES E EXAMES -->
+  <div class="section" id="s04">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">04</div>
+        <div class="sec-meta">
+          <div class="sec-category">Serviços</div>
+          <div class="sec-title">Especialidades e Exames</div>
+          <div class="sec-desc">Clínica completa com mais de 170 especialistas e laboratório próprio.</div>
+        </div>
+      </div>
+
+      <div class="benefit-grid" style="margin-bottom:16px;">
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🫀</div>
+          <div class="benefit-item-text"><h4>Cardiologia</h4><p>Consultas e exames cardiológicos especializados.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🧠</div>
+          <div class="benefit-item-text"><h4>Neurologia</h4><p>Avaliação e acompanhamento neurológico.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🔬</div>
+          <div class="benefit-item-text"><h4>Gastroenterologia</h4><p>Diagnóstico e tratamento do sistema digestivo.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">👁️</div>
+          <div class="benefit-item-text"><h4>Oftalmologia</h4><p>Cuidado completo da saúde ocular.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🦴</div>
+          <div class="benefit-item-text"><h4>Ortopedia</h4><p>Tratamento de ossos, articulações e músculos.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">👶</div>
+          <div class="benefit-item-text"><h4>Pediatria</h4><p>Atendimento médico para crianças e adolescentes.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🩺</div>
+          <div class="benefit-item-text"><h4>Ginecologia e Urologia</h4><p>Saúde feminina e masculina com especialistas.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">👂</div>
+          <div class="benefit-item-text"><h4>Otorrinolaringologia</h4><p>Ouvido, nariz e garganta.</p></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px;">Exames disponíveis</div>
+      <div class="benefit-grid">
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🎗️</div>
+          <div class="benefit-item-text"><h4>Mamografia</h4><p>Exame de imagem para rastreamento e diagnóstico da mama.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🖥️</div>
+          <div class="benefit-item-text"><h4>Tomografia Computadorizada</h4><p>Equipamentos modernos para diagnósticos precisos.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">📡</div>
+          <div class="benefit-item-text"><h4>Ultrassonografia</h4><p>Exames de imagem com resultado rápido.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🩻</div>
+          <div class="benefit-item-text"><h4>Raios-X e Densitometria</h4><p>Exames de imagem radiológicos completos.</p></div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🧪</div>
+          <div class="benefit-item-text"><h4>Exames Laboratoriais</h4><p>Laboratório próprio para resultados ágeis.</p></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);margin:24px 0 10px;">Tabela de valores empresarial · Planning</div>
+
+      <div style="overflow-x:auto;">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Tabela Particular</th>
+              <th>Tabela Planning</th>
+              <th>Economia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="cat-row"><td colspan="4">Consultas</td></tr>
+            <tr>
+              <td>Todas as especialidades</td>
+              <td class="part">R$ 195,00</td>
+              <td class="emp">R$ 165,00</td>
+              <td class="saving">−15%</td>
+            </tr>
+            <tr class="cat-row"><td colspan="4">Imagem</td></tr>
+            <tr>
+              <td>Mamografia Digital Bilateral</td>
+              <td class="part">R$ 190,00</td>
+              <td class="emp">R$ 120,00</td>
+              <td class="saving">−37%</td>
+            </tr>
+            <tr>
+              <td>Ultrassonografia (maioria)</td>
+              <td class="part">R$ 190,00</td>
+              <td class="emp">R$ 115,00</td>
+              <td class="saving">−39%</td>
+            </tr>
+            <tr>
+              <td>Raios-X (maioria)</td>
+              <td class="part">R$ 120,00</td>
+              <td class="emp">R$ 60,00</td>
+              <td class="saving">−50%</td>
+            </tr>
+            <tr>
+              <td>Tomografia Computadorizada (maioria)</td>
+              <td class="part">R$ 480,00</td>
+              <td class="emp">R$ 260,00</td>
+              <td class="saving">−46%</td>
+            </tr>
+            <tr>
+              <td>Densitometria Óssea (Coluna + Fêmur)</td>
+              <td class="part" style="text-decoration:none;color:var(--gray-300);">—</td>
+              <td class="emp">R$ 150,00</td>
+              <td class="saving">—</td>
+            </tr>
+            <tr class="cat-row"><td colspan="4">Cardiológicos</td></tr>
+            <tr>
+              <td>Eletrocardiograma</td>
+              <td class="part">R$ 95,00</td>
+              <td class="emp">R$ 60,00</td>
+              <td class="saving">−37%</td>
+            </tr>
+            <tr>
+              <td>Ecocardiograma com Doppler Colorido</td>
+              <td class="part">R$ 290,00</td>
+              <td class="emp">R$ 180,00</td>
+              <td class="saving">−38%</td>
+            </tr>
+            <tr>
+              <td>Holter 24 horas</td>
+              <td class="part" style="text-decoration:none;color:var(--gray-300);">—</td>
+              <td class="emp">R$ 150,00</td>
+              <td class="saving">—</td>
+            </tr>
+            <tr class="cat-row"><td colspan="4">Laboratoriais (exemplos)</td></tr>
+            <tr>
+              <td>Hemograma Completo</td>
+              <td class="part">R$ 42,00</td>
+              <td class="emp">R$ 15,00</td>
+              <td class="saving">−64%</td>
+            </tr>
+            <tr>
+              <td>Vitamina D (25-OH)</td>
+              <td class="part">R$ 100,00</td>
+              <td class="emp">R$ 65,00</td>
+              <td class="saving">−35%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="price-note">Tabela Empresarial Planning. Para a lista completa de procedimentos, consulte via WhatsApp: <a href="https://wa.me/5562999714091" target="_blank" style="color:var(--teal2);">(62) 99971-4091</a>.</p>
+    </div>
+  </div>
+
+  <!-- 05 AGENDAMENTO -->
+  <div class="section" id="s05">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">05</div>
+        <div class="sec-meta">
+          <div class="sec-category">Atendimento</div>
+          <div class="sec-title">Agendamentos e Canais de Contato</div>
+          <div class="sec-desc">Entre em contato diretamente com a clínica para agendar ou tirar dúvidas.</div>
+        </div>
+      </div>
+
+      <div class="contact-box" style="margin-bottom:16px;">
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div class="contact-info">
+            <span>Telefone</span>
+            <a href="tel:+556235454000">(62) 3545-4000</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">💬</div>
+          <div class="contact-info">
+            <span>WhatsApp</span>
+            <a href="https://wa.me/5562999714091" target="_blank">(62) 99971-4091</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🌐</div>
+          <div class="contact-info">
+            <span>Site Oficial</span>
+            <a href="https://clinicabrasilgoiania.com.br/" target="_blank">clinicabrasilgoiania.com.br</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📅</div>
+          <div class="contact-info">
+            <span>Agendamento Online</span>
+            <a href="https://agendamentos.clinicabrasilgoiania.com.br/" target="_blank">Agendar pela internet</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-dark">
+        <div class="callout-icon">🔍</div>
+        <div class="callout-body">
+          <div class="callout-label">Resultado de Exames</div>
+          <div class="callout-text">Os resultados de exames podem ser acessados pelo portal online da clínica em <a href="https://resultados.clinicabrasilgoiania.com.br/" target="_blank" style="color:var(--blue);font-weight:600;">resultados.clinicabrasilgoiania.com.br</a>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 CARTEIRINHA VIRTUAL -->
+  <div class="section" id="s06">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">06</div>
+        <div class="sec-meta">
+          <div class="sec-category">Identificação</div>
+          <div class="sec-title">Carteirinha Virtual</div>
+          <div class="sec-desc">Sua identificação como beneficiário da Clínica Brasil é 100% digital.</div>
+        </div>
+      </div>
+
+      <div class="card-virtual" style="margin-bottom:20px;">
+        <div class="card-virtual-label">Carteirinha Virtual · Clínica Brasil</div>
+        <div class="card-chip"></div>
+        <div class="card-virtual-title">Beneficiário Planning</div>
+        <div class="card-virtual-sub">Acesso pelo SharePoint · Link divulgado em breve</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-content">
+            <h4>O DP cadastra os beneficiários</h4>
+            <p>O Departamento Pessoal é responsável por enviar os dados dos colaboradores elegíveis à Clínica Brasil. Esse processo ocorre de forma <strong>quinzenal</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-content">
+            <h4>Você recebe o link para resgatar sua carteirinha</h4>
+            <p>Em breve, você receberá um <strong>link para acessar e resgatar sua carteirinha virtual</strong>. Ela também ficará disponível no <strong>SharePoint</strong> da Planning. Para acessá-la, basta informar seu <strong>nome</strong> e <strong>data de nascimento</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-content">
+            <h4>Guarde no celular</h4>
+            <p>Salve sua carteirinha virtual no celular para apresentar facilmente na recepção da clínica.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-content">
+            <h4>Apresente na recepção</h4>
+            <p>Na chegada à clínica, basta mostrar a carteirinha virtual para ser identificado como beneficiário Planning.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:16px;">
+        <div class="callout-icon">🔄</div>
+        <div class="callout-body">
+          <div class="callout-label">Atualização quinzenal</div>
+          <div class="callout-text">Os dados dos beneficiários são atualizados <strong>quinzenalmente</strong>. Novos colaboradores serão incluídos na próxima atualização. Em caso de dúvidas, entre em contato com o DP.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 LOCALIZAÇÃO -->
+  <div class="section" id="s07">
+    <div class="section-inner">
+      <div class="sec-head">
+        <div class="sec-num">07</div>
+        <div class="sec-meta">
+          <div class="sec-category">Localização</div>
+          <div class="sec-title">Onde encontrar a Clínica Brasil</div>
+          <div class="sec-desc">Localização central em Goiânia, com 90 vagas de estacionamento próprio.</div>
+        </div>
+      </div>
+
+      <div class="address-box">
+        <div class="address-icon">📍</div>
+        <div class="address-text">
+          <h4>Clínica Brasil — Unidade Goiânia</h4>
+          <p>Avenida T-1, nº 110, esquina com a Av. T-6<br>Setor Bueno · Goiânia – GO · CEP 74210-300</p>
+          <a href="https://g.page/clinicabrasil?share" target="_blank">🗺️ Ver no Google Maps</a>
+        </div>
+      </div>
+
+      <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px;">Horários de funcionamento</div>
+      <div style="overflow-x:auto;margin-bottom:16px;">
+        <table class="hours-table">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th>Abertura</th>
+              <th>Fechamento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Segunda a Sexta</td>
+              <td>06h00</td>
+              <td>20h00</td>
+            </tr>
+            <tr>
+              <td>Sábado</td>
+              <td>07h00</td>
+              <td>13h00</td>
+            </tr>
+            <tr>
+              <td>Domingo e Feriados</td>
+              <td>07h00</td>
+              <td>12h00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="benefit-grid">
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🅿️</div>
+          <div class="benefit-item-text">
+            <h4>Estacionamento próprio</h4>
+            <p>90 vagas disponíveis para maior comodidade.</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-item-icon">🥗</div>
+          <div class="benefit-item-text">
+            <h4>Lanchonete no local</h4>
+            <p>Estrutura completa de conforto e conveniência.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Benefícios Corporativos · <strong>Clínica Brasil</strong></span>
+    <span>Planning · Gente e Gestão</span>
+  </div>
+
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const dots = document.querySelectorAll('.toc-dot');
+  const btn = document.getElementById('scroll-top');
+
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) cur = s.id; });
+    dots.forEach(d => d.classList.toggle('active', d.dataset.target === cur));
+  });
+
+  btn.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+  dots.forEach(d => d.addEventListener('click', () => {
+    const t = document.getElementById(d.dataset.target);
+    if (t) t.scrollIntoView({behavior:'smooth',block:'start'});
+  }));
+</script>
+</body>
+</html>
